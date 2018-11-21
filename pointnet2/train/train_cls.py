@@ -78,6 +78,8 @@ def parse_args():
     )
     parser.add_argument('--visdom-port', type=int, default=8097)
 
+    parser.add_argument('--use-xyz', type=bool, default=True)
+
     return parser.parse_args()
 
 
@@ -118,7 +120,7 @@ if __name__ == "__main__":
     )
 
     batchnorm = (args.batch_size > 1)
-    model = Pointnet(input_channels=0, num_classes=40, use_xyz=True, bn=batchnorm)
+    model = Pointnet(input_channels=0, num_classes=40, use_xyz=args.use_xyz, bn=batchnorm)
     model.cuda()
     
     optimizer = optim.Adam(
