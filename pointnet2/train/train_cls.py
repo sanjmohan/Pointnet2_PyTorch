@@ -6,7 +6,10 @@ import numpy as np
 from torch.utils.data import DataLoader
 from torch.autograd import Variable
 from torchvision import transforms
-import os
+import os, sys
+
+##
+sys.path.append(os.path.join(os.path.dirname(os.path.realpath(__file__)), '../..'))
 
 from pointnet2.models import Pointnet2ClsMSG as Pointnet
 from pointnet2.models.pointnet2_msg_cls import model_fn_decorator
@@ -17,6 +20,9 @@ import argparse
 
 torch.backends.cudnn.enabled = True
 torch.backends.cudnn.benchmark = True
+
+
+
 
 
 def parse_args():
@@ -111,8 +117,10 @@ if __name__ == "__main__":
         pin_memory=True
     )
 
-    model = Pointnet(input_channels=0, num_classes=40, use_xyz=True)
+    batchnorm = (args.batch_size > 1)
+    model = Pointnet(input_channels=0, num_classes=40, use_xyz=True, bn=batchnorm)
     model.cuda()
+    
     optimizer = optim.Adam(
         model.parameters(), lr=args.lr, weight_decay=args.weight_decay
     )
@@ -120,7 +128,7 @@ if __name__ == "__main__":
     bn_lbmd = lambda it: max(args.bn_momentum * args.bnm_decay**(int(it * args.batch_size / args.decay_step)), bnm_clip)
 
     if args.checkpoint is not None:
-        start_epoch, best_loss = pt_utils.load_checkpoint(
+        it, start_epoch, best_loss = pt_utils.load_checkpoint(
             model, optimizer, filename=args.checkpoint.split(".")[0]
         )
 
@@ -139,8 +147,8 @@ if __name__ == "__main__":
 
     model_fn = model_fn_decorator(nn.CrossEntropyLoss())
 
-    viz = pt_utils.VisdomViz(port=args.visdom_port)
-    viz.text(str(vars(args)))
+    #viz = pt_utils.VisdomViz(port=args.visdom_port)
+    #viz.text(str(vars(args)))
 
     trainer = pt_utils.Trainer(
         model,
@@ -150,7 +158,7 @@ if __name__ == "__main__":
         best_name="checkpoints/pointnet2_cls_best",
         lr_scheduler=lr_scheduler,
         bnm_scheduler=bnm_scheduler,
-        viz=viz
+        viz=None#viz
     )
 
     trainer.train(
@@ -161,6 +169,9 @@ if __name__ == "__main__":
         test_loader,
         best_loss=best_loss
     )
+
+    loss, dct = trainer.eval_epoch(test_loader)
+    print(sum(dct['acc']) / len(dct['acc']))
 
     if start_epoch == args.epochs:
         _ = trainer.eval_epoch(test_loader)

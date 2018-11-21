@@ -7,3 +7,5 @@ checkpoints
 *.prof
 .lvimrc
 .vimtags
+*ipynb_checkpoints
+*out*.txt

@@ -49,9 +49,10 @@ class Pointnet2MSG(nn.Module):
             Whether or not to use the xyz position of a point as a feature
     """
 
-    def __init__(self, num_classes, input_channels=3, use_xyz=True):
+    def __init__(self, num_classes, input_channels=3, use_xyz=True, bn=True):
         super().__init__()
 
+        
         self.SA_modules = nn.ModuleList()
         self.SA_modules.append(
             PointnetSAModuleMSG(
@@ -61,7 +62,8 @@ class Pointnet2MSG(nn.Module):
                 mlps=[[input_channels, 32, 32,
                        64], [input_channels, 64, 64, 128],
                       [input_channels, 64, 96, 128]],
-                use_xyz=use_xyz
+                use_xyz=use_xyz,
+                bn=bn
             )
         )
 
@@ -74,21 +76,22 @@ class Pointnet2MSG(nn.Module):
                 mlps=[[input_channels, 64, 64,
                        128], [input_channels, 128, 128, 256],
                       [input_channels, 128, 128, 256]],
-                use_xyz=use_xyz
+                use_xyz=use_xyz,
+                bn=bn
             )
         )
         self.SA_modules.append(
             PointnetSAModule(
-                mlp=[128 + 256 + 256, 256, 512, 1024], use_xyz=use_xyz
+                mlp=[128 + 256 + 256, 256, 512, 1024], use_xyz=use_xyz, bn=bn
             )
         )
 
         self.FC_layer = nn.Sequential(
-            pt_utils.FC(1024, 512, bn=True),
+            pt_utils.FC(1024, 512, bn=bn),
             nn.Dropout(p=0.5),
-            pt_utils.FC(512, 256, bn=True),
+            pt_utils.FC(512, 256, bn=bn),
             nn.Dropout(p=0.5),
-            pt_utils.FC(256, num_classes, activation=None)
+            pt_utils.FC(256, num_classes, activation=None, bn=bn),
         )
 
     def _break_up_pc(self, pc):

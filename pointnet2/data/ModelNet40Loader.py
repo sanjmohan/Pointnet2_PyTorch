@@ -27,8 +27,14 @@ class ModelNet40Cls(data.Dataset):
 
         self.folder = "modelnet40_ply_hdf5_2048"
         self.data_dir = os.path.join(BASE_DIR, self.folder)
+        
+        ##
+        #self.data_dir = '/home/jovyan/s6mohan/pointnet3/data/'+self.folder
+        
         self.url = "https://shapenet.cs.stanford.edu/media/modelnet40_ply_hdf5_2048.zip"
 
+        ##
+        download = False
         if download and not os.path.exists(self.data_dir):
             zipfile = os.path.join(BASE_DIR, os.path.basename(self.url))
             subprocess.check_call(
