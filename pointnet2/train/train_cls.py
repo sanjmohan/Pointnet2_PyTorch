@@ -149,8 +149,8 @@ if __name__ == "__main__":
 
     model_fn = model_fn_decorator(nn.CrossEntropyLoss())
 
-    viz = pt_utils.VisdomViz(port=args.visdom_port)
-    viz.text(str(vars(args)))
+    #viz = pt_utils.VisdomViz(port=args.visdom_port)
+    #viz.text(str(vars(args)))
 
     trainer = pt_utils.Trainer(
         model,
@@ -160,7 +160,7 @@ if __name__ == "__main__":
         best_name="checkpoints/pointnet2_cls_best",
         lr_scheduler=lr_scheduler,
         bnm_scheduler=bnm_scheduler,
-        viz=viz
+        viz=None#viz
     )
 
     trainer.train(
