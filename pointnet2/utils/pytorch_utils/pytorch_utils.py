@@ -789,4 +789,11 @@ class Trainer(object):
                         )
                         pbar.set_postfix(dict(total_it=it))
 
+                if test_loader is not None:
+                    print("Epoch {}/{}".format(epoch, n_epochs))
+                    val_loss, res = self.eval_epoch(test_loader)
+                    print("Loss: {}".format(val_loss))
+                    print("Acc: {}".format(sum(res['acc']) / len(res['acc'])))
+                    print()
+
         return best_loss
