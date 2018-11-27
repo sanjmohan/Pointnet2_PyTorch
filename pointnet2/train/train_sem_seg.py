@@ -75,6 +75,8 @@ parser.add_argument(
 )
 parser.add_argument('--visdom-port', type=int, default=8097)
 
+parser.add_argument('--use-xyz', type=bool, default=True)
+
 
 lr_clip = 1e-5
 bnm_clip = 1e-2
@@ -100,7 +102,7 @@ if __name__ == "__main__":
         shuffle=True
     )
 
-    model = Pointnet(num_classes=13, input_channels=6, use_xyz=True)
+    model = Pointnet(num_classes=13, input_channels=6, use_xyz=args.use_xyz)
     model.cuda()
     optimizer = optim.Adam(
         model.parameters(), lr=args.lr, weight_decay=args.weight_decay
@@ -129,8 +131,8 @@ if __name__ == "__main__":
 
     model_fn = model_fn_decorator(nn.CrossEntropyLoss())
 
-    viz = pt_utils.VisdomViz(port=args.visdom_port)
-    viz.text(str(vars(args)))
+    #viz = pt_utils.VisdomViz(port=args.visdom_port)
+    #viz.text(str(vars(args)))
 
     trainer = pt_utils.Trainer(
         model,
@@ -140,7 +142,7 @@ if __name__ == "__main__":
         best_name="checkpoints/poitnet2_semseg_best",
         lr_scheduler=lr_scheduler,
         bnm_scheduler=bnm_scheduler,
-        viz=viz
+        viz=None#viz
     )
 
     trainer.train(
