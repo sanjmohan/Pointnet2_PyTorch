@@ -23,9 +23,13 @@ class Indoor3DSemSeg(data.Dataset):
         super().__init__()
         self.data_precent = data_precent
         self.folder = "indoor3d_sem_seg_hdf5_data"
+
+        ##
         self.data_dir = os.path.join(BASE_DIR, self.folder)
+        
         self.url = "https://shapenet.cs.stanford.edu/media/indoor3d_sem_seg_hdf5_data.zip"
 
+        download = False
         if download and not os.path.exists(self.data_dir):
             zipfile = os.path.join(BASE_DIR, os.path.basename(self.url))
             subprocess.check_call(
