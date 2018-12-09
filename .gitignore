@@ -9,3 +9,4 @@ checkpoints
 .vimtags
 *ipynb_checkpoints
 *out*.txt
+.vscode
